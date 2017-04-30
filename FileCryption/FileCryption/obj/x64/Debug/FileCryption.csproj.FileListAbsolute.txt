@@ -1,0 +1,8 @@
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\bin\x64\Debug\FileCryption.exe.config
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\bin\x64\Debug\FileCryption.exe
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\bin\x64\Debug\FileCryption.pdb
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.Form1.resources
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.Properties.Resources.resources
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.csproj.GenerateResource.Cache
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.exe
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.pdb
