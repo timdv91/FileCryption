@@ -6,3 +6,4 @@ C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Deb
 C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.csproj.GenerateResource.Cache
 C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.exe
 C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.pdb
+C:\Users\Tim\Documents\GitHub\FileCryption\FileCryption\FileCryption\obj\x64\Debug\FileCryption.csprojResolveAssemblyReference.cache

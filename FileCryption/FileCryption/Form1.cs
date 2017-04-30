@@ -12,10 +12,25 @@ namespace FileCryption
 {
     public partial class Form1 : Form
     {
+        byte[] keyFileData; //can only pass one var to background worker. So keyFileData is publicaly available.
+
+        //instantiate background workers publicaly:
+        BackgroundWorker bw0 = new BackgroundWorker();
+
         public Form1()
         {
             InitializeComponent();
+            initBackgroundWorkers();
         }
+
+        //initialize background workers:
+        void initBackgroundWorkers()
+        {
+            bw0.DoWork += Bw0_DoWork;
+            bw0.WorkerReportsProgress = true;
+            bw0.ProgressChanged += Bw0_ProgressChanged;
+            bw0.RunWorkerCompleted += Bw0_RunWorkerCompleted;
+        }       
 
         //choose files buttons:
         private void btnKeyFile_Click(object sender, EventArgs e)
@@ -43,15 +58,11 @@ namespace FileCryption
 
             //load the key file and file to encrypt:
             rwBinaryFile rwB = new rwBinaryFile();
-            byte[] keyFileData = rwB.readBinaryFile(txtKeyfilePath.Text.ToString());
+            keyFileData = rwB.readBinaryFile(txtKeyfilePath.Text.ToString());
             byte[] sourceFileToEncrypt = rwB.readBinaryFile(txtEncryptFilePath.Text.ToString());
 
             //now encrypt the file:
-            FileCrypt FC = new FileCrypt();
-            int[] encryptedData = FC.encryptFile(keyFileData, sourceFileToEncrypt);
-
-            //now write the data to file:
-            rwB.writeEncryptedFile(saveFileToPath(), encryptedData);
+            bw0.RunWorkerAsync(sourceFileToEncrypt); //keyfiledata is publicaly available.
         }
 
         private void btnRunDecrypt_Click(object sender, EventArgs e)
@@ -71,7 +82,7 @@ namespace FileCryption
             byte[] originalData = FC.decryptFile(keyFileData, sourceFileToDecrypt);
 
             //now write the data like an original file:
-            rwB.writeBinaryFile(saveFileToPath(), originalData);
+            rwB.writeBinaryFile(saveFileToPath(), originalData);        
         }
 
         //openfiledialog function:
@@ -92,6 +103,33 @@ namespace FileCryption
                 return SF.FileName.ToString();
             else
                 return null;
+        }
+
+        //backgroundworker ID 0:
+        private void Bw0_DoWork(object sender, DoWorkEventArgs e) 
+        {
+            byte[] _sourceFileToEncrypt = (byte[]) e.Argument; //retrieve needed data as argument.
+
+            FileCrypt FC = new FileCrypt();
+            int[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw0);
+
+            //send data to RunWorkerCompleted:
+            e.Result = encryptedData;
+        }
+
+        private void Bw0_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar1.Value = e.ProgressPercentage;
+        }
+
+        private void Bw0_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //get encrypted data from result:
+            int[] _encryptedData = (int[]) e.Result;
+
+            //now write the data to file:
+            rwBinaryFile rwB = new rwBinaryFile();
+            rwB.writeEncryptedFile(saveFileToPath(), _encryptedData);
         }
     }
 }
