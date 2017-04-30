@@ -20,7 +20,7 @@ namespace FileCryption
         BackgroundWorker bw1 = new BackgroundWorker();
 
         //use counters to keep track of finished work:
-        int BackgroundWorkersAmount = 1;
+        int BackgroundWorkersAmount = 2;
         int BackgroundWorkersCompleted = 0;
 
         public Form1()
@@ -74,9 +74,12 @@ namespace FileCryption
 
             //clear buildlist:
             rebuildEncryptedDataList.Clear();
+            //clear backgroundWorkersCompleted:
+            BackgroundWorkersCompleted = 0;
 
             //now encrypt the file:
             bw0.RunWorkerAsync(sourceFileToEncrypt); //keyfiledata is publicaly available.
+            bw1.RunWorkerAsync(sourceFileToEncrypt);
         }
 
         private void btnRunDecrypt_Click(object sender, EventArgs e)
@@ -164,7 +167,11 @@ namespace FileCryption
 
         private void Bw1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            //get encrypted data from result:
+            int[] _encryptedData = (int[])e.Result;
 
+            BackgroundWorkersCompleted++; //add 1 to completed to keep track of progress.
+            buildEncryptedArrayAndWriteToFile(1, _encryptedData);
         }  
 
         //put all data inside 1 array and write it to file:
@@ -178,12 +185,19 @@ namespace FileCryption
                 return;
 
             //rebuild list with array (2D) to 1D array:
-
-
+            List<int> dataCompleteList = new List<int>();
+            foreach(int[] bwData in rebuildEncryptedDataList)
+            {
+                foreach(int encDataLine in bwData)
+                {
+                    if(encDataLine != 0) //skip '0' chars, no idea where comming from :(.
+                        dataCompleteList.Add(encDataLine);
+                }
+            }
 
             //now write the data to file:
             rwBinaryFile rwB = new rwBinaryFile();
-            rwB.writeEncryptedFile(saveFileToPath(), _encryptedData);
+            rwB.writeEncryptedFile(saveFileToPath(), dataCompleteList.ToArray());
         }
     }
 }
