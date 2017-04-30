@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace FileCryption
 {
@@ -20,7 +21,7 @@ namespace FileCryption
         BackgroundWorker bw1 = new BackgroundWorker();
 
         //use counters to keep track of finished work:
-        int BackgroundWorkersAmount = 2;
+        static int BackgroundWorkersAmount = 2;
         int BackgroundWorkersCompleted = 0;
 
         public Form1()
@@ -67,19 +68,37 @@ namespace FileCryption
                 return;
             //continue when paths are given.
 
-            //load the key file and file to encrypt:
-            rwBinaryFile rwB = new rwBinaryFile();
-            keyFileData = rwB.readBinaryFile(txtKeyfilePath.Text.ToString());
-            byte[] sourceFileToEncrypt = rwB.readBinaryFile(txtEncryptFilePath.Text.ToString());
-
+            //reset some public vars before (re)using them:
             //clear buildlist:
             rebuildEncryptedDataList.Clear();
             //clear backgroundWorkersCompleted:
             BackgroundWorkersCompleted = 0;
 
+            //load the key file and file to encrypt:
+            rwBinaryFile rwB = new rwBinaryFile();
+            keyFileData = rwB.readBinaryFile(txtKeyfilePath.Text.ToString());
+            byte[] sourceFileToEncrypt = rwB.readBinaryFile(txtEncryptFilePath.Text.ToString());
+
+            //Split the load of sourceFileToEncrypt to different Backgroundworkers:
+            //WARNING! When sourceFileToEncrypt is odd, do not lose a byte when devission is not a round number!
+            float fltDiv = (float)sourceFileToEncrypt.Count() / (float)BackgroundWorkersAmount;
+            int intDiv = sourceFileToEncrypt.Count() / BackgroundWorkersAmount;
+            int restDiv = sourceFileToEncrypt.Count() % BackgroundWorkersAmount;
+
+            Debug.WriteLine("fltDiv: " + fltDiv);
+            Debug.WriteLine("intDiv: " + intDiv);
+            Debug.WriteLine("restDiv: " + restDiv);
+
+            byte[] bw0Data = new byte[intDiv];
+            Array.Copy(sourceFileToEncrypt, 0, bw0Data, 0, intDiv);
+
+            //last array has to carry the rest value:
+            byte[] bw1Data = new byte[intDiv + restDiv];
+            Array.Copy(sourceFileToEncrypt, intDiv, bw1Data, 0, intDiv + restDiv);
+
             //now encrypt the file:
-            bw0.RunWorkerAsync(sourceFileToEncrypt); //keyfiledata is publicaly available.
-            bw1.RunWorkerAsync(sourceFileToEncrypt);
+            bw0.RunWorkerAsync(bw0Data); //keyfiledata is publicaly available.
+            bw1.RunWorkerAsync(bw1Data);
         }
 
         private void btnRunDecrypt_Click(object sender, EventArgs e)
@@ -154,7 +173,7 @@ namespace FileCryption
             byte[] _sourceFileToEncrypt = (byte[])e.Argument; //retrieve needed data as argument.
 
             FileCrypt FC = new FileCrypt();
-            int[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw0);
+            int[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw1);
 
             //send data to RunWorkerCompleted:
             e.Result = encryptedData;
