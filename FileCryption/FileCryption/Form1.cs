@@ -14,7 +14,7 @@ namespace FileCryption
     public partial class Form1 : Form
     {
         byte[] keyFileData; //can only pass one var to background worker. So keyFileData is publicaly available.
-        List<int[]> rebuildEncryptedDataList = new List<int[]>(); //list is more dynamic as array.
+        List<UInt32[]> rebuildEncryptedDataList = new List<UInt32[]>(); //list is more dynamic as array.
 
         //instantiate background workers publicaly:
         BackgroundWorker bw0 = new BackgroundWorker();
@@ -110,23 +110,23 @@ namespace FileCryption
             int sourceAStartPos = intDiv * 0;
             byte[] bw0Data = new byte[intDiv];
             Array.Copy(sourceFileToEncrypt, sourceAStartPos, bw0Data, 0, intDiv);
-            rebuildEncryptedDataList.Add(new int[intDiv]);
+            rebuildEncryptedDataList.Add(new UInt32[intDiv]);
 
             sourceAStartPos = intDiv * 1;
             byte[] bw1Data = new byte[intDiv];
             Array.Copy(sourceFileToEncrypt, sourceAStartPos, bw1Data, 0, intDiv);
-            rebuildEncryptedDataList.Add(new int[intDiv]);
+            rebuildEncryptedDataList.Add(new UInt32[intDiv]);
 
             sourceAStartPos = intDiv * 2;
             byte[] bw2Data = new byte[intDiv];
             Array.Copy(sourceFileToEncrypt, sourceAStartPos, bw2Data, 0, intDiv);
-            rebuildEncryptedDataList.Add(new int[intDiv]);
+            rebuildEncryptedDataList.Add(new UInt32[intDiv]);
 
             //last array has to carry the rest value:
 //disabled -->            //sourceAStartPos = intDiv * 3;
             byte[] bw3Data = new byte[intDiv + restDiv];
             Array.Copy(sourceFileToEncrypt, sourceAStartPos, bw3Data, 0, intDiv + restDiv);
-            rebuildEncryptedDataList.Add(new int[intDiv + restDiv]);
+            rebuildEncryptedDataList.Add(new UInt32[intDiv + restDiv]);
 
             //now encrypt the file:
             bw0.RunWorkerAsync(bw0Data); //keyfiledata is publicaly available.
@@ -145,7 +145,7 @@ namespace FileCryption
             //load the key file and file to decrypt:
             rwBinaryFile rwB = new rwBinaryFile();
             byte[] keyFileData = rwB.readBinaryFile(txtKeyfilePath.Text.ToString());
-            int[] sourceFileToDecrypt = rwB.readEncryptedFile(txtDecryptFilePath.Text.ToString());
+            UInt32[] sourceFileToDecrypt = rwB.readEncryptedFile(txtDecryptFilePath.Text.ToString());
 
             //now decrypt the file:
             FileCrypt FC = new FileCrypt();
@@ -181,7 +181,7 @@ namespace FileCryption
             byte[] _sourceFileToEncrypt = (byte[]) e.Argument; //retrieve needed data as argument.
 
             FileCrypt FC = new FileCrypt();
-            int[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw0);
+            UInt32[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw0);
 
             //send data to RunWorkerCompleted:
             e.Result = encryptedData;
@@ -195,7 +195,7 @@ namespace FileCryption
         private void Bw0_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             //get encrypted data from result:
-            int[] _encryptedData = (int[]) e.Result;
+            UInt32[] _encryptedData = (UInt32[]) e.Result;
 
             BackgroundWorkersCompleted++; //add 1 to completed to keep track of progress.
             buildEncryptedArrayAndWriteToFile(0,_encryptedData);
@@ -207,7 +207,7 @@ namespace FileCryption
             byte[] _sourceFileToEncrypt = (byte[])e.Argument; //retrieve needed data as argument.
 
             FileCrypt FC = new FileCrypt();
-            int[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw1);
+            UInt32[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw1);
 
             //send data to RunWorkerCompleted:
             e.Result = encryptedData;
@@ -221,7 +221,7 @@ namespace FileCryption
         private void Bw1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             //get encrypted data from result:
-            int[] _encryptedData = (int[])e.Result;
+            UInt32[] _encryptedData = (UInt32[])e.Result;
 
             BackgroundWorkersCompleted++; //add 1 to completed to keep track of progress.
             buildEncryptedArrayAndWriteToFile(1, _encryptedData);
@@ -233,7 +233,7 @@ namespace FileCryption
             byte[] _sourceFileToEncrypt = (byte[])e.Argument; //retrieve needed data as argument.
 
             FileCrypt FC = new FileCrypt();
-            int[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw2);
+            UInt32[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw2);
 
             //send data to RunWorkerCompleted:
             e.Result = encryptedData;
@@ -247,7 +247,7 @@ namespace FileCryption
         private void Bw2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             //get encrypted data from result:
-            int[] _encryptedData = (int[])e.Result;
+            UInt32[] _encryptedData = (UInt32[])e.Result;
 
             BackgroundWorkersCompleted++; //add 1 to completed to keep track of progress.
             buildEncryptedArrayAndWriteToFile(2, _encryptedData);
@@ -259,7 +259,7 @@ namespace FileCryption
             byte[] _sourceFileToEncrypt = (byte[])e.Argument; //retrieve needed data as argument.
 
             FileCrypt FC = new FileCrypt();
-            int[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw3);
+            UInt32[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw3);
 
             //send data to RunWorkerCompleted:
             e.Result = encryptedData;
@@ -273,7 +273,7 @@ namespace FileCryption
         private void Bw3_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             //get encrypted data from result:
-            int[] _encryptedData = (int[])e.Result;
+            UInt32[] _encryptedData = (UInt32[])e.Result;
 
             BackgroundWorkersCompleted++; //add 1 to completed to keep track of progress.
             buildEncryptedArrayAndWriteToFile(3, _encryptedData);
@@ -281,7 +281,7 @@ namespace FileCryption
   
 
         //put all data inside 1 array and write it to file:
-        void buildEncryptedArrayAndWriteToFile(int threadID ,int[] _encryptedData)
+        void buildEncryptedArrayAndWriteToFile(int threadID , UInt32[] _encryptedData)
         {
             rebuildEncryptedDataList.Insert(threadID, _encryptedData);
 
@@ -289,11 +289,17 @@ namespace FileCryption
             if (BackgroundWorkersCompleted < BackgroundWorkersAmount)
                 return;
 
-            //rebuild list with array (2D) to 1D array:
-            List<int> dataCompleteList = new List<int>();
-            foreach(int[] bwData in rebuildEncryptedDataList)
+            if (progressBar1.Value < 100)
             {
-                foreach(int encDataLine in bwData)
+                MessageBox.Show("Error encrypting file.");
+                return;
+            }
+
+            //rebuild list with array (2D) to 1D array:
+            List<UInt32> dataCompleteList = new List<UInt32>();
+            foreach(UInt32[] bwData in rebuildEncryptedDataList)
+            {
+                foreach(UInt32 encDataLine in bwData)
                 {
                     if(encDataLine != 0) //skip '0' chars, no idea where comming from :(.
                         dataCompleteList.Add(encDataLine);
