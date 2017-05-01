@@ -20,9 +20,10 @@ namespace FileCryption
         BackgroundWorker bw0 = new BackgroundWorker();
         BackgroundWorker bw1 = new BackgroundWorker();
         BackgroundWorker bw2 = new BackgroundWorker();
+        BackgroundWorker bw3 = new BackgroundWorker();
 
         //use counters to keep track of finished work:
-        static int BackgroundWorkersAmount = 3;
+/*+1 if using all 4 bw's */        static int BackgroundWorkersAmount = 3;
         int BackgroundWorkersCompleted = 0;
 
         public Form1()
@@ -48,12 +49,23 @@ namespace FileCryption
             bw2.WorkerReportsProgress = true;
             bw2.ProgressChanged += Bw2_ProgressChanged;
             bw2.RunWorkerCompleted += Bw2_RunWorkerCompleted;
+
+            bw3.DoWork += Bw3_DoWork;
+            bw3.WorkerReportsProgress = true;
+            bw3.ProgressChanged += Bw3_ProgressChanged;
+            bw3.RunWorkerCompleted += Bw3_RunWorkerCompleted;
         }
 
         //choose files buttons:
         private void btnKeyFile_Click(object sender, EventArgs e)
         {
             txtKeyfilePath.Text = getFilePath();
+
+            if (txtKeyfilePath.Text != "")
+            {
+                btnKeyFile.Enabled = false;
+                txtKeyfilePath.Enabled = false;
+            }
         }
 
         private void btnFileToEncrypt_Click(object sender, EventArgs e)
@@ -105,16 +117,22 @@ namespace FileCryption
             Array.Copy(sourceFileToEncrypt, sourceAStartPos, bw1Data, 0, intDiv);
             rebuildEncryptedDataList.Add(new int[intDiv]);
 
-            //last array has to carry the rest value:
             sourceAStartPos = intDiv * 2;
-            byte[] bw2Data = new byte[intDiv + restDiv];
-            Array.Copy(sourceFileToEncrypt, sourceAStartPos, bw2Data, 0, intDiv + restDiv);
+            byte[] bw2Data = new byte[intDiv];
+            Array.Copy(sourceFileToEncrypt, sourceAStartPos, bw2Data, 0, intDiv);
+            rebuildEncryptedDataList.Add(new int[intDiv]);
+
+            //last array has to carry the rest value:
+//disabled -->            //sourceAStartPos = intDiv * 3;
+            byte[] bw3Data = new byte[intDiv + restDiv];
+            Array.Copy(sourceFileToEncrypt, sourceAStartPos, bw3Data, 0, intDiv + restDiv);
             rebuildEncryptedDataList.Add(new int[intDiv + restDiv]);
 
             //now encrypt the file:
             bw0.RunWorkerAsync(bw0Data); //keyfiledata is publicaly available.
             bw1.RunWorkerAsync(bw1Data);
-            bw2.RunWorkerAsync(bw2Data);
+ //disabled -->           //bw2.RunWorkerAsync(bw2Data);
+            bw3.RunWorkerAsync(bw3Data);
         }
 
         private void btnRunDecrypt_Click(object sender, EventArgs e)
@@ -235,7 +253,32 @@ namespace FileCryption
             buildEncryptedArrayAndWriteToFile(2, _encryptedData);
         }
 
-        
+        //backgroundworker ID3:
+        private void Bw3_DoWork(object sender, DoWorkEventArgs e)
+        {
+            byte[] _sourceFileToEncrypt = (byte[])e.Argument; //retrieve needed data as argument.
+
+            FileCrypt FC = new FileCrypt();
+            int[] encryptedData = FC.encryptFile(keyFileData, _sourceFileToEncrypt, bw3);
+
+            //send data to RunWorkerCompleted:
+            e.Result = encryptedData;
+        }
+
+        private void Bw3_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            //not used, Bw0 will fill progressbar.
+        }
+
+        private void Bw3_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //get encrypted data from result:
+            int[] _encryptedData = (int[])e.Result;
+
+            BackgroundWorkersCompleted++; //add 1 to completed to keep track of progress.
+            buildEncryptedArrayAndWriteToFile(3, _encryptedData);
+        }
+  
 
         //put all data inside 1 array and write it to file:
         void buildEncryptedArrayAndWriteToFile(int threadID ,int[] _encryptedData)
