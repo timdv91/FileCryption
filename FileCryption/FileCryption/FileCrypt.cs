@@ -21,11 +21,18 @@ namespace FileCryption
             int[] indexList = new int[FileCryptFile.Count()]; //output file has same lenght as input file. Just scrambled bits. :)
             int indexListCounter = 0;
 
-            int startIndex = keyFile.Count() / 2;
-
             foreach (byte b in FileCryptFile) //loop all bytes of data in file to fileCrypt.
             {
-                for(int i=startIndex; i<keyFile.Count();i++) //loop all bytes of data in the keyFile.
+                //create random line picker for better encryption:
+                int Seed = (int)DateTime.Now.Ticks;
+                Random r0 = new Random(Seed);
+                int ran0 = r0.Next(1000);
+
+                int startIndex = keyFile.Count() / ran0;
+
+                Debug.WriteLine("random: " + ran0 + " / startpos: " + startIndex);
+
+                for (int i=startIndex; i<keyFile.Count();i++) //loop all bytes of data in the keyFile.
                 {
                     if (b == keyFile[i]) //if FileCryptData = KeyFileData then add this index to indexList.
                     {
