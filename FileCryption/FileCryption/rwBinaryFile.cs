@@ -33,14 +33,14 @@ namespace FileCryption
         }
 
         //write encrypted file using streamwriter:
-        public bool writeEncryptedFile(string strPath, int[] dataToWrite)
+        public bool writeEncryptedFile(string strPath, UInt32[] dataToWrite)
         {
             if (strPath == null)
                 return false;
 
             StreamWriter sw = new StreamWriter(strPath);
 
-            foreach(int i in dataToWrite)
+            foreach(UInt32 i in dataToWrite)
                 sw.WriteLine(i);
 
             sw.Close();
@@ -48,11 +48,11 @@ namespace FileCryption
         }
 
         //read encrypted file using streamwriter:
-        public int[] readEncryptedFile(string strPath)
+        public UInt32[] readEncryptedFile(string strPath)
         {
             try
             {
-                List<int> indexList = new List<int>();
+                List<UInt32> indexList = new List<UInt32>();
                 StreamReader sr = new StreamReader(strPath);
 
                 //read line by line from file:
@@ -64,13 +64,13 @@ namespace FileCryption
                         break;
                     }
 
-                    indexList.Add(Convert.ToInt32(line)); //put data into list;
+                    indexList.Add(Convert.ToUInt32(line)); //put data into list;
                 }
 
                 sr.Close();
 
                 //convert list to array:
-                int[] indexArray = new int[indexList.Count];
+                UInt32[] indexArray = new UInt32[indexList.Count];
                 for (int i = 0; i < indexList.Count; i++)
                     indexArray[i] = indexList[i];
 
