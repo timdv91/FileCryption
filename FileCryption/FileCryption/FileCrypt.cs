@@ -75,7 +75,10 @@ namespace FileCryption
             UInt32 i = 0;
             foreach(UInt32 encryptIndex in encryptedFileData)
             {
-                decryptedFileData[i] = keyFile[encryptIndex];
+                if (keyFile.Count() > encryptIndex)
+                    decryptedFileData[i] = keyFile[encryptIndex];
+                else
+                    decryptedFileData[i] = 0;
                 i++;  
             }
             
