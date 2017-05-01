@@ -36,7 +36,7 @@ namespace FileCryption
 
                 for (UInt32 i =startIndex; i<keyFile.Count();i++) //loop all bytes of data in the keyFile.
                 {
-                    if (b == keyFile[i]) //if FileCryptData = KeyFileData then add this index to indexList.
+                    if ((b == keyFile[i]) && ((r0.Next(8196)%3) == 0)) //if FileCryptData = KeyFileData then add this index to indexList. But only do this 1 out of 3 times.
                     {
                         indexList[indexListCounter] = i; //add index to indexlist, 
                         indexListCounter++; //increment indexListCounter;
