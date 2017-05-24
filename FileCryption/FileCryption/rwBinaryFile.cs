@@ -81,5 +81,18 @@ namespace FileCryption
                 return null;
             }
         }
+
+        //returns the file extention
+        public string getBinaryFileExtention(string filePath)
+        {
+            string[] strBuf = filePath.Split('.');          
+            return strBuf[strBuf.Count()-1];
+        }
+
+        public string getEncryptedFileExtention(string filePath)
+        {
+            string[] strBuf = filePath.Split('.');
+            return strBuf[strBuf.Count() - 2];
+        }
     }
 }

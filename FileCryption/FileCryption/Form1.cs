@@ -75,7 +75,7 @@ namespace FileCryption
 
         private void btnFileToDecrypt_Click(object sender, EventArgs e)
         {
-            txtDecryptFilePath.Text = getFilePath();
+            txtDecryptFilePath.Text = getFilePath(true); //true shows only fenc files
         }
 
         //run program buttons:
@@ -151,14 +151,26 @@ namespace FileCryption
             FileCrypt FC = new FileCrypt();
             byte[] originalData = FC.decryptFile(keyFileData, sourceFileToDecrypt);
 
+            //create filepath with correct extention:
+            string FileExtention = rwB.getEncryptedFileExtention(txtDecryptFilePath.Text);
+            string saveFilepath = saveFileToPath("Data Files (*." + FileExtention + ")|*."+ FileExtention, FileExtention);
+
             //now write the data like an original file:
-            rwB.writeBinaryFile(saveFileToPath(), originalData);        
+            rwB.writeBinaryFile(saveFilepath, originalData);        
         }
 
         //openfiledialog function:
-        private string getFilePath()
+        private string getFilePath(bool filterFencFiles = false)
         {
             OpenFileDialog OF = new OpenFileDialog();
+
+            if (filterFencFiles == true)  //show only the fenc files.
+            {
+                OF.Filter = "Data Files (*.fenc)|*.fenc";
+                OF.DefaultExt = "fenc";
+                OF.AddExtension = true;
+            }
+
             if (OF.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 return OF.FileName.ToString();
             else
@@ -166,9 +178,13 @@ namespace FileCryption
         }
 
         //savefiledialog function
-        private string saveFileToPath()
+        private string saveFileToPath(string fileType = "Data Files (*.fenc)|*.fenc", string defaultExt = "fenc", bool addExtention = true)
         {
             SaveFileDialog SF = new SaveFileDialog();
+            SF.Filter = fileType;
+            SF.DefaultExt = defaultExt;
+            SF.AddExtension = addExtention;
+
             if (SF.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 return SF.FileName.ToString();
             else
@@ -308,7 +324,26 @@ namespace FileCryption
 
             //now write the data to file:
             rwBinaryFile rwB = new rwBinaryFile();
-            rwB.writeEncryptedFile(saveFileToPath(), dataCompleteList.ToArray());
+
+
+            //create save file containing filetype:
+            string savePath = saveFileToPath();
+            string saveFileExtention = rwB.getBinaryFileExtention(txtEncryptFilePath.Text);
+
+            //add extetion to filename as dualextention:
+            string[] savePathBuf = savePath.Split('.');
+            savePath = ""; //clear savePath;
+            for (int I=0;I < savePathBuf.Count();I++)
+            {
+                if (I == savePathBuf.Count() - 1) //add file extention;
+                    savePath += '.' + saveFileExtention + '.'; //this could probably give errors when filepath already contains multiple '.'
+
+                savePath += savePathBuf[I];
+            }
+
+            Debug.Print(savePath);
+
+            rwB.writeEncryptedFile(savePath, dataCompleteList.ToArray());
         }
     }
 }
