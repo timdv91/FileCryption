@@ -6,3 +6,10 @@ the KeyFile. The position is used as index and the index is saved to the encrypt
 When decrypting, the secret-encrypted-file their index position Byte representative is retreaved from the
 KeyFile and rewritten as the standard Byte.
 
+Example pictures: 
+
+Picture 1:
+![alt text](https://github.com/timdv91/FileCryption/blob/master/readmeImg0.png)
+
+Picture 2:
+![alt text](https://github.com/timdv91/FileCryption/blob/master/readmeImg1.png)
